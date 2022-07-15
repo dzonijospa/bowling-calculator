@@ -1,59 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BowlingCalculator.Domain.FrameStates
 {
     public class OpenFrame : IFrameState
     {
 
-        private byte MAX_PINS = 10;
+        public byte MaxPins { get; }
+        public bool ThrowingDoneForFrame { get; private set; }
 
-        private byte _firstThrow;
-        private byte _secondThrow;
-
-        private Func<byte, IFrameState> _applyMethod;
-
-        public bool IsFinished { get; private set; }
-
-        public bool IsScoringCompleted { get; private set; } = false;
+        public bool IsScoreCalculated { get; private set; } = false;
 
         public byte FrameScore { get; private set; }
 
-        public OpenFrame()
+        public byte? FirstThrow { get; private set; }
+
+        public byte? SecondThrow { get; private set; }
+
+        public OpenFrame(byte maxPins,bool throwingDone,bool isScoringCompleted,byte frameScore,byte? firstThrow,byte? secondThrow)
         {
-            _applyMethod = WaitingForFirstThrow;
+            MaxPins = maxPins;
+            ThrowingDoneForFrame = throwingDone;
+            IsScoreCalculated = isScoringCompleted;
+            FrameScore = frameScore;
+            FirstThrow = firstThrow;
+            SecondThrow = secondThrow;
         }
 
         public IFrameState ApplyPinsDowned(byte pinsDowned)
         {
-            return _applyMethod(pinsDowned);
+            if (!FirstThrow.HasValue)
+                return ApplyFirstThrow(pinsDowned);
+            else
+                return ApplySecondThrow(pinsDowned);
         }
 
-        private IFrameState WaitingForFirstThrow(byte pinsDown)
+        private IFrameState ApplyFirstThrow(byte pinsDown)
         {
-            _firstThrow = pinsDown;
-            
+            FirstThrow = pinsDown;           
 
-            if (_firstThrow == MAX_PINS)
-                return new Strike();
+            if (FirstThrow == MaxPins)
+                return Strike.CreateDefaultStrike(MaxPins);
 
-            FrameScore += _firstThrow;
-            _applyMethod = WaitingForSecondThrow;
+            FrameScore += FirstThrow.Value;
 
             return this;
         }
 
-        private IFrameState WaitingForSecondThrow(byte pinsDown)
+        private IFrameState ApplySecondThrow(byte pinsDown)
         {
-            _secondThrow = pinsDown;            
+            SecondThrow = pinsDown;            
 
-            if (_firstThrow + _secondThrow == MAX_PINS)
-                return new Spare(_firstThrow, _secondThrow);
+            if (FirstThrow.Value + SecondThrow.Value == MaxPins)
+                return Spare.CreateDefaultSpare(MaxPins, FirstThrow,SecondThrow);
 
-            FrameScore += _secondThrow;
-            IsFinished = true;
-            IsScoringCompleted = true;
+            FrameScore += SecondThrow.Value;
+            ThrowingDoneForFrame = true;
+            IsScoreCalculated = true;
 
             return this;
         }

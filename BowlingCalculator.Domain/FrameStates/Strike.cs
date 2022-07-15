@@ -6,38 +6,60 @@ namespace BowlingCalculator.Domain.FrameStates
 {
     public class Strike : IFrameState
     {
-        private byte MAX_PINS = 10;
-        public bool IsFinished { get { return true; } }
+        public bool ThrowingDoneForFrame { get { return true; } }
 
-        public bool IsScoringCompleted { get; private set; } = false;
+        public bool IsScoreCalculated { get; private set; } = false;
 
         public byte FrameScore { get; private set; }
 
-        private Func<byte, IFrameState> _applyMethod;
+        public byte? FirstThrow { get; }
 
-        public Strike()
+        public byte? SecondThrow { get; }
+
+        public byte? FirstBonusRoll { get; private set; }
+
+        public byte? SecondBonusRoll { get; private set; }
+
+        public byte MaxPins { get; }
+
+        public Strike(byte maxPins,bool isScoringCompleted, byte frameScore, byte? firstThrow, byte? secondThrow, byte? firstBonusRoll, byte? secondBonusRoll)
         {
-            _applyMethod = WaitingForFirstThrow;
+            MaxPins = maxPins;
+            IsScoreCalculated = isScoringCompleted;
+            FrameScore = frameScore;
+            FirstThrow = firstThrow;
+            SecondThrow = secondThrow;
+            FirstBonusRoll = firstBonusRoll;
+            SecondBonusRoll = secondBonusRoll;
         }
 
         public IFrameState ApplyPinsDowned(byte pinsDowned)
         {
-            return _applyMethod(pinsDowned);
+            if (!FirstBonusRoll.HasValue)
+                return ApplyFirstBonusRoll(pinsDowned);
+            else
+                return ApplySecondBonusRoll(pinsDowned);
         }
 
-        private IFrameState WaitingForFirstThrow(byte pinsDown)
-        {            
-            FrameScore += pinsDown;
-            _applyMethod = WaitingForSecondThrow;
-
-            return this;
-        }
-
-        private IFrameState WaitingForSecondThrow(byte pinsDown)
+        private IFrameState ApplyFirstBonusRoll(byte pinsDown)
         {
-            FrameScore += pinsDown;
-            IsScoringCompleted = true;
+            FirstBonusRoll = pinsDown;
+
             return this;
+        }
+
+        private IFrameState ApplySecondBonusRoll(byte pinsDown)
+        {
+            SecondBonusRoll = pinsDown;
+            FrameScore = (byte)(MaxPins + FirstBonusRoll.Value + SecondBonusRoll.Value);
+            IsScoreCalculated = true;
+            return this;
+        }
+
+        public static Strike CreateDefaultStrike(byte maxPins)
+        {
+            return new Strike(maxPins:maxPins, isScoringCompleted: false, frameScore: default(byte), firstThrow: maxPins,
+                                secondThrow: null, firstBonusRoll: null, secondBonusRoll: null);
         }
     }
 }

@@ -1,65 +1,109 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace BowlingCalculator.Domain
 {
     public class Game
     {
-        public short RunningTotal { get; private set; }
-
         public LinkedList<Frame> Frames { get; }
 
-        private Frame _currentFrame;
-
-        public bool GameFinished { get; private set; }
-
-        private Game(short score,LinkedList<Frame> frames)
+        public Game(LinkedList<Frame> frames)
         {
-            RunningTotal = score;
             Frames = frames;
         }
 
-        public void Throw(byte pinsDowned)
+        public bool IsGameFinished()
         {
-            if (GameFinished)
+            return Frames.Last.Value.FrameState.IsScoreCalculated;
+        }
+
+        public short CalculateRunningTotal()
+        {
+            short runningTotal = 0;
+            foreach (Frame frame in Frames)
+            {
+                runningTotal += frame.FrameState.FrameScore;
+            }
+            return runningTotal;
+        }
+
+        public void Roll(byte pinsDowned)
+        {
+            if (IsGameFinished())
                 throw new Exception();
 
-            _currentFrame.ApplyPinsDowned(pinsDowned);
+            Frame currentFrame = Frames.First(x => x.IsCurrentFrame);
 
-            ApplyScoringToPreviousFrames(pinsDowned);
+            ApplyScoringToCurrentFrame(currentFrame, pinsDowned);
+
+            ApplyScoringToPreviousFrames(pinsDowned, currentFrame);
             
-            if(_currentFrame.FrameCompleted)
-                SetNextFrame();
+            SetCurrentFrame(currentFrame);
         }
 
-        private void SetNextFrame()
+        private void ApplyScoringToCurrentFrame(Frame currentFrame,byte pinsDowned)
         {
-            Frame nextFrame = Frames.Find(_currentFrame).Next?.Value;
-            if (nextFrame != null)
-                _currentFrame = nextFrame;
-            else if (_currentFrame.FrameScoreCalculated)
-                GameFinished = true;
-            //else this is 10th frame with strike
+            currentFrame.ApplyPinsDowned(pinsDowned);
         }
 
-        private void ApplyScoringToPreviousFrames(byte pinsDowned)
+        private void ApplyScoringToPreviousFrames(byte pinsDowned,Frame currentFrame)
         {
-            Frame frameToCheckScoring = _currentFrame;
-            bool checkPrevious = true;
-            while (checkPrevious)
+            Frame frameToCheckScoringForPreviusNode = currentFrame;
+            bool checkPreviousNode = true;
+            while (checkPreviousNode)
             {
-                Frame frame = Frames.Find(frameToCheckScoring).Previous?.Value;
-                if (frame != null && !frame.FrameScoreCalculated)
+                Frame previousFrame = Frames.Find(frameToCheckScoringForPreviusNode).Previous?.Value;
+                if (previousFrame != null && !previousFrame.FrameState.IsScoreCalculated)
                 {
-                    frame.ApplyPinsDowned(pinsDowned);
-                    frameToCheckScoring = frame;
+                    previousFrame.ApplyPinsDowned(pinsDowned);
+                    frameToCheckScoringForPreviusNode = previousFrame;
                 }
                 else
                 {
-                    checkPrevious = false;
+                    checkPreviousNode = false;
                 }
             }
         }
+
+        private void SetCurrentFrame(Frame currentFrame)
+        {
+            if (!currentFrame.FrameState.ThrowingDoneForFrame)
+                return;
+
+            Frame nextFrame = Frames.Find(currentFrame).Next?.Value;
+            if (nextFrame != null)
+                ChangeCurrentFrameValue(currentFrame,nextFrame);
+        }
+
+        private void ChangeCurrentFrameValue(Frame currentFrame, Frame nextFrame)
+        {
+            currentFrame.SetCurrentFrame(false);
+            nextFrame.SetCurrentFrame(true);
+        }
+
+       
+
+        //public static Game CreateTenPinGame()
+        //{
+        //    LinkedList<Frame> frames = CreateFrames();
+
+        //    return new Game(0, frames);
+        //}
+
+        //private static LinkedList<Frame> CreateFrames()
+        //{
+        //    var frames = new LinkedList<Frame>();
+        //    var lastNodeAdded = frames.AddFirst(Frame.CreateFrame(1));
+
+        //    for (byte i = 2; i <= 9; i++)
+        //    {
+        //        var frame = Frame.CreateFrame(i);
+        //        lastNodeAdded = frames.AddAfter(lastNodeAdded, frame);
+        //    }
+
+        //    frames.AddLast(Frame.CreateFrame(10));
+        //    return frames;
+        //}
     }
 }

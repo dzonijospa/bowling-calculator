@@ -6,10 +6,12 @@ namespace BowlingCalculator.Domain.FrameStates
 {
     public interface IFrameState
     {
-        bool IsFinished { get; }
-        bool IsScoringCompleted { get; }
+        byte? FirstThrow { get; }
+        byte? SecondThrow { get; }
+        bool ThrowingDoneForFrame { get; }
+        bool IsScoreCalculated { get; }
         IFrameState ApplyPinsDowned(byte pinsDowned);
-
         byte FrameScore { get; }
+        byte MaxPins { get; }
     }
 }

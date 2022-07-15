@@ -6,30 +6,39 @@ namespace BowlingCalculator.Domain.FrameStates
 {
     public class Spare : IFrameState
     {
-        private byte MAX_PINS = 10;
+        public bool ThrowingDoneForFrame { get; }
 
-        private readonly int _firstThrow;
-
-        private readonly int _secondThrow;
-
-        public bool IsFinished { get { return true; } }
-
-        public bool IsScoringCompleted { get; private set; } = false;
+        public bool IsScoreCalculated { get; private set; }
 
         public byte FrameScore { get; private set; }
 
-        public Spare(int firstThrow, int secondThrow)
+        public byte? FirstThrow { get; }
+
+        public byte? SecondThrow { get; }
+
+        public byte MaxPins { get; }
+
+        public Spare(byte maxPins,byte? firstThrow, byte? secondThrow,bool isScoringCompleted)
         {
-            _firstThrow = firstThrow;
-            _secondThrow = secondThrow;
-            FrameScore = MAX_PINS;
+            MaxPins = maxPins;
+            FirstThrow = firstThrow;
+            SecondThrow = secondThrow;
+            FrameScore = maxPins;
+            IsScoreCalculated = isScoringCompleted;
+            ThrowingDoneForFrame = true;
         }
 
         public IFrameState ApplyPinsDowned(byte pinsDowned)
         {
-            FrameScore += pinsDowned;
-            IsScoringCompleted = true;
+            //bonus roll
+            FrameScore = (byte)(MaxPins + pinsDowned); //points are calulated when bonus roll is done
+            IsScoreCalculated = true;
             return this;
+        }
+
+        public static Spare CreateDefaultSpare(byte maxPins,byte? firstThrow, byte? secondThrow)
+        {
+            return new Spare(maxPins:maxPins, firstThrow: firstThrow, secondThrow: secondThrow,isScoringCompleted:false);
         }
 
     }

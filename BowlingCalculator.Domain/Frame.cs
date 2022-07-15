@@ -1,33 +1,30 @@
 ﻿using BowlingCalculator.Domain.FrameStates;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BowlingCalculator.Domain
 {
     public class Frame
     {
-
-        private IFrameState _frameState;
-
-        public byte FrameScore { get { return _frameState.FrameScore; } }
-
-        public bool FrameScoreCalculated { get { return _frameState.IsScoringCompleted; } }
-
-        public bool FrameCompleted { get { return _frameState.IsFinished; } }
+        public bool IsCurrentFrame { get; private set; }
+        public IFrameState FrameState { get; private set; }
 
         public byte FrameNumber { get; }
 
-        public Frame(byte frameNumber)
+        public Frame(byte frameNumber, IFrameState frameState,bool isCurrentFrame)
         {
             FrameNumber = frameNumber;
+            FrameState = frameState;
+            IsCurrentFrame = isCurrentFrame;
+        }
+
+        public void SetCurrentFrame(bool currentFrameFlag)
+        {
+            IsCurrentFrame = currentFrameFlag;
         }
 
         public void ApplyPinsDowned(byte pinsDowned)
         {
-            IFrameState frameState = _frameState.ApplyPinsDowned(pinsDowned);
-            _frameState = frameState;            
+            IFrameState frameState = FrameState.ApplyPinsDowned(pinsDowned);
+            FrameState = frameState;            
         }
-
     }
 }
