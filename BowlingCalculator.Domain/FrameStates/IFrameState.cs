@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BowlingCalculator.Domain.FrameStates
+﻿namespace BowlingCalculator.Domain.FrameStates
 {
     public interface IFrameState
     {
-        byte? FirstThrow { get; }
-        byte? SecondThrow { get; }
-        bool ThrowingDoneForFrame { get; }
-        bool IsScoreCalculated { get; }
-        IFrameState ApplyPinsDowned(byte pinsDowned);
-        byte FrameScore { get; }
-        byte MaxPins { get; }
+        FrameStateType FrameStateType { get; }
+        byte? FrameScore { get; }
+        IFrameState ApplyRoll(byte pinsDowned,byte maxPins);
+        bool ShouldTransitionToNextFrame();
+    }
+
+    public enum FrameStateType
+    {
+        OpenFrame,
+        Spare,
+        Strike
     }
 }

@@ -1,44 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BowlingCalculator.Domain.FrameStates
+﻿namespace BowlingCalculator.Domain.FrameStates
 {
     public class Strike : IFrameState
     {
-        public bool ThrowingDoneForFrame { get { return true; } }
-
-        public bool IsScoreCalculated { get; private set; } = false;
-
-        public byte FrameScore { get; private set; }
-
-        public byte? FirstThrow { get; }
-
-        public byte? SecondThrow { get; }
-
+        public FrameStateType FrameStateType { get { return FrameStateType.Strike; } }
+        public byte? FrameScore { get; private set; }
+        public byte? FirstRoll { get; }
         public byte? FirstBonusRoll { get; private set; }
-
         public byte? SecondBonusRoll { get; private set; }
 
-        public byte MaxPins { get; }
-
-        public Strike(byte maxPins,bool isScoringCompleted, byte frameScore, byte? firstThrow, byte? secondThrow, byte? firstBonusRoll, byte? secondBonusRoll)
+        public Strike(byte? frameScore, byte? firstRoll, 
+                      byte? firstBonusRoll, byte? secondBonusRoll)
         {
-            MaxPins = maxPins;
-            IsScoreCalculated = isScoringCompleted;
             FrameScore = frameScore;
-            FirstThrow = firstThrow;
-            SecondThrow = secondThrow;
+            FirstRoll = firstRoll;
             FirstBonusRoll = firstBonusRoll;
             SecondBonusRoll = secondBonusRoll;
         }
 
-        public IFrameState ApplyPinsDowned(byte pinsDowned)
+        public IFrameState ApplyRoll(byte pinsDowned,byte maxPins)
         {
             if (!FirstBonusRoll.HasValue)
                 return ApplyFirstBonusRoll(pinsDowned);
             else
                 return ApplySecondBonusRoll(pinsDowned);
+        }
+
+        public bool ShouldTransitionToNextFrame()
+        {
+            return true;
         }
 
         private IFrameState ApplyFirstBonusRoll(byte pinsDown)
@@ -51,15 +40,19 @@ namespace BowlingCalculator.Domain.FrameStates
         private IFrameState ApplySecondBonusRoll(byte pinsDown)
         {
             SecondBonusRoll = pinsDown;
-            FrameScore = (byte)(MaxPins + FirstBonusRoll.Value + SecondBonusRoll.Value);
-            IsScoreCalculated = true;
+            CalculateScore();//points are calulated when second bonus roll is done
             return this;
         }
 
-        public static Strike CreateDefaultStrike(byte maxPins)
+        private void CalculateScore()
         {
-            return new Strike(maxPins:maxPins, isScoringCompleted: false, frameScore: default(byte), firstThrow: maxPins,
-                                secondThrow: null, firstBonusRoll: null, secondBonusRoll: null);
+            FrameScore = (byte)(FirstRoll.Value + FirstBonusRoll.Value + SecondBonusRoll.Value);
         }
+        public static Strike CreateDefaultStrike(byte firstRoll)
+        {
+            return new Strike(frameScore: null, firstRoll: firstRoll,
+                firstBonusRoll: null, secondBonusRoll: null);
+        }
+
     }
 }

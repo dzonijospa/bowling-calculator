@@ -1,63 +1,74 @@
-﻿using System;
-
-namespace BowlingCalculator.Domain.FrameStates
+﻿namespace BowlingCalculator.Domain.FrameStates
 {
     public class OpenFrame : IFrameState
     {
+        public FrameStateType FrameStateType { get { return FrameStateType.OpenFrame; } }
+        public byte? FrameScore { get; private set; }
+        public byte? FirstRoll { get; private set; }
+        public byte? SecondRoll { get; private set; }        
 
-        public byte MaxPins { get; }
-        public bool ThrowingDoneForFrame { get; private set; }
-
-        public bool IsScoreCalculated { get; private set; } = false;
-
-        public byte FrameScore { get; private set; }
-
-        public byte? FirstThrow { get; private set; }
-
-        public byte? SecondThrow { get; private set; }
-
-        public OpenFrame(byte maxPins,bool throwingDone,bool isScoringCompleted,byte frameScore,byte? firstThrow,byte? secondThrow)
+        public OpenFrame(byte? frameScore, byte? firstRoll, byte? secondRoll)
         {
-            MaxPins = maxPins;
-            ThrowingDoneForFrame = throwingDone;
-            IsScoreCalculated = isScoringCompleted;
             FrameScore = frameScore;
-            FirstThrow = firstThrow;
-            SecondThrow = secondThrow;
+            FirstRoll = firstRoll;
+            SecondRoll = secondRoll;
         }
 
-        public IFrameState ApplyPinsDowned(byte pinsDowned)
+        public IFrameState ApplyRoll(byte pinsDowned,byte maxPins)
         {
-            if (!FirstThrow.HasValue)
-                return ApplyFirstThrow(pinsDowned);
+            if (!FirstRoll.HasValue)
+                return ApplyFirstRoll(pinsDowned,maxPins);
             else
-                return ApplySecondThrow(pinsDowned);
+                return ApplySecondRoll(pinsDowned, maxPins);
         }
 
-        private IFrameState ApplyFirstThrow(byte pinsDown)
+        public bool ShouldTransitionToNextFrame()
         {
-            FirstThrow = pinsDown;           
+            return FirstRoll.HasValue && SecondRoll.HasValue;
+        }
 
-            if (FirstThrow == MaxPins)
-                return Strike.CreateDefaultStrike(MaxPins);
+        private IFrameState ApplyFirstRoll(byte pinsDown,byte maxPins)
+        {
+            FirstRoll = pinsDown;
 
-            FrameScore += FirstThrow.Value;
+            if (FirstRoll == maxPins)
+                return TransitionToStrikeState();
+
+            return this;
+        }       
+
+        private IFrameState ApplySecondRoll(byte pinsDown,byte maxPins)
+        {
+            SecondRoll = pinsDown;
+
+            if (FirstRoll.Value + SecondRoll.Value == maxPins)
+                return TransitionToSpareState();
+
+            CalculateScore();//points are calulated when both throws are done
 
             return this;
         }
 
-        private IFrameState ApplySecondThrow(byte pinsDown)
+        private void CalculateScore()
         {
-            SecondThrow = pinsDown;            
-
-            if (FirstThrow.Value + SecondThrow.Value == MaxPins)
-                return Spare.CreateDefaultSpare(MaxPins, FirstThrow,SecondThrow);
-
-            FrameScore += SecondThrow.Value;
-            ThrowingDoneForFrame = true;
-            IsScoreCalculated = true;
-
-            return this;
+            FrameScore = (byte)(FirstRoll.Value + SecondRoll.Value);
         }
+
+        private IFrameState TransitionToSpareState()
+        {
+            return Spare.CreateDefaultSpare(FirstRoll.Value, SecondRoll.Value);
+        }
+
+        private IFrameState TransitionToStrikeState()
+        {
+            return Strike.CreateDefaultStrike(FirstRoll.Value);
+        }
+
+        public static OpenFrame CreateDefaultOpenFrame()
+        {
+            return new OpenFrame(frameScore: null,firstRoll: null, secondRoll: null);
+        }
+
+       
     }
 }

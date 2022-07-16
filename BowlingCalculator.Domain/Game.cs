@@ -6,57 +6,75 @@ namespace BowlingCalculator.Domain
 {
     public class Game
     {
-        public LinkedList<Frame> Frames { get; }
+        public LinkedList<Frame> Frames { get; }        
+        public byte MaxPins { get; }
+        public byte CurrentFrameNumber { get; private set; }
+        public short RunningTotal { get; private set; }
+        public long GameId { get; }
 
-        public Game(LinkedList<Frame> frames)
+        private readonly object _lock = new object();
+
+        public Game(long gameId,LinkedList<Frame> frames,byte currentFrameNumber,byte maxPins)
         {
+            GameId = gameId;
             Frames = frames;
-        }
-
-        public bool IsGameFinished()
-        {
-            return Frames.Last.Value.FrameState.IsScoreCalculated;
-        }
-
-        public short CalculateRunningTotal()
-        {
-            short runningTotal = 0;
-            foreach (Frame frame in Frames)
-            {
-                runningTotal += frame.FrameState.FrameScore;
-            }
-            return runningTotal;
+            CurrentFrameNumber = currentFrameNumber;
+            MaxPins = maxPins;
+            CalculateRunningTotal();
         }
 
         public void Roll(byte pinsDowned)
         {
-            if (IsGameFinished())
-                throw new Exception();
+            ValidateRoll(pinsDowned);
+            lock (_lock)//only method that alters state
+            {
+                Frame currentFrame = Frames.First(x => x.FrameNumber == CurrentFrameNumber);
 
-            Frame currentFrame = Frames.First(x => x.IsCurrentFrame);
+                bool isLastFrame = Frames.Last.Value.FrameNumber == CurrentFrameNumber;
 
-            ApplyScoringToCurrentFrame(currentFrame, pinsDowned);
+                ApplyRollToCurrentFrame(currentFrame, pinsDowned);
 
-            ApplyScoringToPreviousFrames(pinsDowned, currentFrame);
-            
-            SetCurrentFrame(currentFrame);
-        }
+                ApplyRollToPreviousFrames(currentFrame, pinsDowned);
 
-        private void ApplyScoringToCurrentFrame(Frame currentFrame,byte pinsDowned)
+                CalculateRunningTotal();
+
+                SetCurrentFrame(currentFrame, isLastFrame);
+            }
+        }      
+
+        public bool IsGameFinished()
         {
-            currentFrame.ApplyPinsDowned(pinsDowned);
+            return FrameScoreCompleted(Frames.Last.Value);
         }
 
-        private void ApplyScoringToPreviousFrames(byte pinsDowned,Frame currentFrame)
+        private void CalculateRunningTotal()
+        {
+            short runningTotal = 0;
+            foreach (Frame frame in Frames)
+            {
+                if (!FrameScoreCompleted(frame))
+                    break; //no subsequent frame can have score
+
+                runningTotal += frame.FrameState.FrameScore.Value;
+            }
+            RunningTotal = runningTotal;
+        }
+
+        private void ApplyRollToCurrentFrame(Frame currentFrame,byte pinsDowned)
+        {
+            currentFrame.ApplyRoll(pinsDowned,MaxPins);
+        }
+
+        private void ApplyRollToPreviousFrames(Frame currentFrame,byte pinsDowned)
         {
             Frame frameToCheckScoringForPreviusNode = currentFrame;
             bool checkPreviousNode = true;
             while (checkPreviousNode)
             {
                 Frame previousFrame = Frames.Find(frameToCheckScoringForPreviusNode).Previous?.Value;
-                if (previousFrame != null && !previousFrame.FrameState.IsScoreCalculated)
+                if (previousFrame != null && !FrameScoreCompleted(previousFrame))
                 {
-                    previousFrame.ApplyPinsDowned(pinsDowned);
+                    previousFrame.ApplyRoll(pinsDowned,MaxPins);
                     frameToCheckScoringForPreviusNode = previousFrame;
                 }
                 else
@@ -66,44 +84,32 @@ namespace BowlingCalculator.Domain
             }
         }
 
-        private void SetCurrentFrame(Frame currentFrame)
+        private void ValidateRoll(byte pinsDowned)
         {
-            if (!currentFrame.FrameState.ThrowingDoneForFrame)
-                return;
+            if (IsGameFinished())
+                throw new Exception("Game is finished!");
 
-            Frame nextFrame = Frames.Find(currentFrame).Next?.Value;
-            if (nextFrame != null)
-                ChangeCurrentFrameValue(currentFrame,nextFrame);
+            if(pinsDowned > MaxPins)
+                throw new Exception("Invalid number of pins!");
         }
 
-        private void ChangeCurrentFrameValue(Frame currentFrame, Frame nextFrame)
+        private void SetCurrentFrame(Frame currentFrame,bool isLastFrame)
         {
-            currentFrame.SetCurrentFrame(false);
-            nextFrame.SetCurrentFrame(true);
+            if (!isLastFrame && currentFrame.FrameState.ShouldTransitionToNextFrame())
+            {                
+                ChangeCurrentFrameToNext(currentFrame);
+            }
         }
 
-       
+        private void ChangeCurrentFrameToNext(Frame currentFrame)
+        {
+            Frame nextFrame = Frames.Find(currentFrame).Next.Value;
+            CurrentFrameNumber = nextFrame.FrameNumber;
+        }
 
-        //public static Game CreateTenPinGame()
-        //{
-        //    LinkedList<Frame> frames = CreateFrames();
-
-        //    return new Game(0, frames);
-        //}
-
-        //private static LinkedList<Frame> CreateFrames()
-        //{
-        //    var frames = new LinkedList<Frame>();
-        //    var lastNodeAdded = frames.AddFirst(Frame.CreateFrame(1));
-
-        //    for (byte i = 2; i <= 9; i++)
-        //    {
-        //        var frame = Frame.CreateFrame(i);
-        //        lastNodeAdded = frames.AddAfter(lastNodeAdded, frame);
-        //    }
-
-        //    frames.AddLast(Frame.CreateFrame(10));
-        //    return frames;
-        //}
+        private bool FrameScoreCompleted(Frame frame)
+        {
+            return frame.FrameState.FrameScore.HasValue;
+        }
     }
 }

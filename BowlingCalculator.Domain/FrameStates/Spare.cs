@@ -1,45 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BowlingCalculator.Domain.FrameStates
+﻿namespace BowlingCalculator.Domain.FrameStates
 {
     public class Spare : IFrameState
     {
-        public bool ThrowingDoneForFrame { get; }
+        public FrameStateType FrameStateType { get { return FrameStateType.Spare; } }
+        public byte? FrameScore { get; private set; }
+        public byte? FirstRoll { get; }
+        public byte? SecondRoll { get; }
+        public byte? FirstBonusRoll { get; private set; }
 
-        public bool IsScoreCalculated { get; private set; }
-
-        public byte FrameScore { get; private set; }
-
-        public byte? FirstThrow { get; }
-
-        public byte? SecondThrow { get; }
-
-        public byte MaxPins { get; }
-
-        public Spare(byte maxPins,byte? firstThrow, byte? secondThrow,bool isScoringCompleted)
+        public Spare(byte? frameScore, byte? firstRoll, byte? secondRoll,
+                     byte? firstBonusRoll)
         {
-            MaxPins = maxPins;
-            FirstThrow = firstThrow;
-            SecondThrow = secondThrow;
-            FrameScore = maxPins;
-            IsScoreCalculated = isScoringCompleted;
-            ThrowingDoneForFrame = true;
+            FrameScore = frameScore;
+            FirstRoll = firstRoll;
+            SecondRoll = secondRoll;
+            FirstBonusRoll = firstBonusRoll;
         }
 
-        public IFrameState ApplyPinsDowned(byte pinsDowned)
+        public IFrameState ApplyRoll(byte pinsDowned,byte maxPins)
         {
-            //bonus roll
-            FrameScore = (byte)(MaxPins + pinsDowned); //points are calulated when bonus roll is done
-            IsScoreCalculated = true;
+            return ApplyBonusRoll(pinsDowned);
+        }
+
+        public bool ShouldTransitionToNextFrame()
+        {
+            return true;
+        }
+
+        private IFrameState ApplyBonusRoll(byte pinsDowned)
+        {
+            FirstBonusRoll = pinsDowned;
+            CalculateScore();//points are calulated when bonus roll is done
             return this;
-        }
+        }    
 
-        public static Spare CreateDefaultSpare(byte maxPins,byte? firstThrow, byte? secondThrow)
+        private void CalculateScore()
         {
-            return new Spare(maxPins:maxPins, firstThrow: firstThrow, secondThrow: secondThrow,isScoringCompleted:false);
+            FrameScore = (byte)(FirstRoll.Value + SecondRoll.Value + FirstBonusRoll.Value);
         }
 
+        public static Spare CreateDefaultSpare( byte firstRoll, byte secondRoll)
+        {
+            return new Spare(firstRoll: firstRoll, secondRoll: secondRoll, 
+                            frameScore: null, firstBonusRoll: null);
+        }
     }
 }
