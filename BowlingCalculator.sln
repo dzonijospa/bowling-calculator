@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E00E9D31
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BowlingCalculator.Domain.Test", "Tests\BowlingCalculator.Domain.Test\BowlingCalculator.Domain.Test.csproj", "{9746D665-6653-4770-A937-B3F9EF3B3FCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BowlingCalculator.API.Test", "Tests\BowlingCalculator.API.Test\BowlingCalculator.API.Test.csproj", "{C919C0A2-5783-47B6-B2C8-0C91CB749DED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +31,17 @@ Global
 		{9746D665-6653-4770-A937-B3F9EF3B3FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9746D665-6653-4770-A937-B3F9EF3B3FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9746D665-6653-4770-A937-B3F9EF3B3FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C919C0A2-5783-47B6-B2C8-0C91CB749DED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C919C0A2-5783-47B6-B2C8-0C91CB749DED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C919C0A2-5783-47B6-B2C8-0C91CB749DED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C919C0A2-5783-47B6-B2C8-0C91CB749DED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9746D665-6653-4770-A937-B3F9EF3B3FCE} = {E00E9D31-A574-412A-9C7A-78155F17C70E}
+		{C919C0A2-5783-47B6-B2C8-0C91CB749DED} = {E00E9D31-A574-412A-9C7A-78155F17C70E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CF56CAEA-0FE6-4B75-963E-04151BDB7B51}
