@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BowlingCalculator\BowlingCalculator.API.csproj" />
+    <ProjectReference Include="..\..\BowlingCalculator.API\BowlingCalculator.API.csproj" />
   </ItemGroup>
 
 </Project>
