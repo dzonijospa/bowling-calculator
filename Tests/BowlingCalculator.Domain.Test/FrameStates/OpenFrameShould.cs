@@ -1,4 +1,5 @@
-﻿using BowlingCalculator.Domain.FrameStates;
+﻿using BowlingCalculator.Domain.Exceptions;
+using BowlingCalculator.Domain.FrameStates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,14 +49,25 @@ namespace BowlingCalculator.Domain.Test.FrameStates
         }
 
         [Fact]
-        public void NotCalculateScoreAfterFirstRoll()
+        public void CalculateScoreAfterFirstRoll()
         {
             OpenFrame openFrame = CreateOpenFrame();
 
             byte firstRoll = 1;
             openFrame.ApplyRoll(firstRoll, max_pin);
 
-            Assert.Null(openFrame.FrameScore);
+            Assert.Equal(openFrame.FrameScore.Value,firstRoll);
+        }
+
+        [Fact]
+        public void ReturnScoringNotCompletedAfterFirstRoll()
+        {
+            OpenFrame openFrame = CreateOpenFrame();
+
+            byte firstRoll = 1;
+            openFrame.ApplyRoll(firstRoll, max_pin);
+
+            Assert.False(openFrame.IsScoringCompleted());
         }
 
         [Fact]
@@ -139,12 +151,37 @@ namespace BowlingCalculator.Domain.Test.FrameStates
             Assert.True(openFrame.ShouldTransitionToNextFrame());
         }
 
-        #endregion
+        [Fact]
+        public void ReturnScoringCompletedAfterSecondRoll()
+        {
+            OpenFrame openFrame = CreateOpenFrame();
 
+            byte firstRoll = 1;
+            byte secondRoll = 2;
+            openFrame.ApplyRoll(firstRoll, max_pin);
+            openFrame.ApplyRoll(secondRoll, max_pin);
+
+            Assert.True(openFrame.IsScoringCompleted());
+        }
+
+        #endregion
+       
+        [Fact]
+        public void ThrowInvalidNumberOfPinExceptionIfTotalMoreThanMax()
+        {
+            OpenFrame openFrame = CreateOpenFrame();
+
+            byte firstRoll = 5;
+            byte secondRoll = 6; //5+6 > max_pin
+            openFrame.ApplyRoll(firstRoll, max_pin);
+            
+
+            Assert.Throws<InvalidNumberOfPinsException>(() =>openFrame.ApplyRoll(secondRoll, max_pin));
+        }
 
         private OpenFrame CreateOpenFrame()
         {
-            return OpenFrame.CreateDefaultOpenFrame();
+            return new OpenFrame(null, null, null);
         }
     }
 }

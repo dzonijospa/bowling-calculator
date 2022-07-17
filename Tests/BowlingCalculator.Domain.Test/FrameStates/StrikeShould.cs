@@ -1,9 +1,4 @@
 ﻿using BowlingCalculator.Domain.FrameStates;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace BowlingCalculator.Domain.Test.FrameStates
@@ -18,7 +13,7 @@ namespace BowlingCalculator.Domain.Test.FrameStates
             Strike strike = CreateStrike();
 
             Assert.True(strike.ShouldTransitionToNextFrame());
-        }
+        }      
 
         [Fact]
         public void ApplyFirstBonusRoll()
@@ -33,14 +28,14 @@ namespace BowlingCalculator.Domain.Test.FrameStates
         }
 
         [Fact]
-        public void NotCalculateScoreAfterFirstBonusRoll()
+        public void ReturnScoringNotCompletedBeforeSecondBonusRoll()
         {
             Strike strike = CreateStrike();
 
             byte firstRoll = 1;
             strike.ApplyRoll(firstRoll, max_pin);
 
-            Assert.Null(strike.FrameScore);
+            Assert.False(strike.IsScoringCompleted());
         }
 
         [Fact]
@@ -70,10 +65,22 @@ namespace BowlingCalculator.Domain.Test.FrameStates
             Assert.Equal(strike.FirstRoll.Value + strike.FirstBonusRoll.Value + strike.SecondBonusRoll.Value, strike.FrameScore.Value);
         }
 
+        [Fact]
+        public void ReturnScoringCompletedAfterSecondBonusRoll()
+        {
+            Strike strike = CreateStrike();
+
+            byte firstRoll = 1;
+            byte secondRoll = 2;
+            strike.ApplyRoll(firstRoll, max_pin);
+            strike.ApplyRoll(secondRoll, max_pin);
+
+            Assert.True(strike.IsScoringCompleted());
+        }
 
         private Strike CreateStrike()
         {
-            return Strike.CreateDefaultStrike(max_pin);
+            return new Strike(max_pin,max_pin,null,null);
         }
 
 

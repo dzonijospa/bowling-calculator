@@ -8,7 +8,7 @@
         public byte? SecondRoll { get; }
         public byte? FirstBonusRoll { get; private set; }
 
-        public Spare(byte? frameScore, byte? firstRoll, byte? secondRoll,
+        public Spare(byte? firstRoll, byte? secondRoll, byte frameScore,
                      byte? firstBonusRoll)
         {
             FrameScore = frameScore;
@@ -27,22 +27,16 @@
             return true;
         }
 
+        public bool IsScoringCompleted()
+        {
+            return FirstBonusRoll.HasValue;
+        }
+
         private IFrameState ApplyBonusRoll(byte pinsDowned)
         {
             FirstBonusRoll = pinsDowned;
-            CalculateScore();//points are calulated when bonus roll is done
+            FrameScore+=FirstBonusRoll.Value;
             return this;
-        }    
-
-        private void CalculateScore()
-        {
-            FrameScore = (byte)(FirstRoll.Value + SecondRoll.Value + FirstBonusRoll.Value);
-        }
-
-        public static Spare CreateDefaultSpare( byte firstRoll, byte secondRoll)
-        {
-            return new Spare(firstRoll: firstRoll, secondRoll: secondRoll, 
-                            frameScore: null, firstBonusRoll: null);
-        }
+        }       
     }
 }

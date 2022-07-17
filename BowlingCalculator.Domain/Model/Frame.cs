@@ -19,9 +19,12 @@ namespace BowlingCalculator.Domain
             FrameState = frameState;            
         }
 
-        public static Frame CreateDefaultFrame(byte frameNumber)
+        public byte GetFrameCompletedScore()
         {
-            return new Frame(frameNumber, OpenFrame.CreateDefaultOpenFrame());
+            byte completedScore = 0;
+            if (FrameState.IsScoringCompleted())
+                completedScore = FrameState.FrameScore.Value;
+            return completedScore;
         }
     }
 }

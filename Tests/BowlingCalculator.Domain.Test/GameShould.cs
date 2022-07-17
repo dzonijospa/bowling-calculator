@@ -1,4 +1,5 @@
-﻿using BowlingCalculator.Domain.FrameStates;
+﻿using BowlingCalculator.Domain.Exceptions;
+using BowlingCalculator.Domain.FrameStates;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -11,16 +12,38 @@ namespace BowlingCalculator.Domain.Test
 {
     public class GameShould
     {
-        [Fact]
-        public void CalculateRunningTotalWhenInstantiated()
-        {
-            byte score = 20;
-            byte currentFrame = 1;
-            var frames = new LinkedList<Frame>();
-            frames.AddFirst(CreateFrameWithScore(currentFrame, score));
-            var game = CreateGame(frames, currentFrame);
 
-            Assert.Equal(game.RunningTotal, score);
+        [Fact]
+        public void ThrowInvalidNumberOfPinExceptionIfTotalMoreThanMax()
+        {
+            var frames = new LinkedList<Frame>();
+            var frameState = new Moq.Mock<IFrameState>();
+            frameState.Setup(x => x.ApplyRoll(It.IsAny<byte>(), It.IsAny<byte>())).Returns(frameState.Object);
+            var frame = new Frame(1, frameState.Object);
+
+            frames.AddFirst(frame);
+
+            var game = CreateGame(frames, 1);
+
+            Assert.Throws<InvalidNumberOfPinsException>(() => game.Roll(11));
+        }
+
+        [Fact]
+        public void ThrowGameFinishedExceptionWhenRollAfterFinishing()
+        {
+            var frames = new LinkedList<Frame>();
+            var frameState = new Moq.Mock<IFrameState>();
+            frameState.Setup(x => x.ApplyRoll(It.IsAny<byte>(), It.IsAny<byte>())).Returns(frameState.Object);
+            frameState.Setup(x => x.IsScoringCompleted()).Returns(true);
+            frameState.Setup(x => x.FrameScore).Returns(5);
+            var frame = new Frame(1, frameState.Object);
+
+            frames.AddFirst(frame);
+
+            var game = CreateGame(frames, 1);
+            game.Roll(1);
+
+            Assert.Throws<GameFinishedException>(() => game.Roll(2));
         }
 
         //roll
@@ -86,7 +109,7 @@ namespace BowlingCalculator.Domain.Test
             //second frame with score
             var frameState2 = new Moq.Mock<IFrameState>();
             frameState2.Setup(x => x.ApplyRoll(It.IsAny<byte>(), It.IsAny<byte>())).Returns(frameState2.Object);
-            frameState2.Setup(x => x.FrameScore).Returns(5);
+            frameState2.Setup(x => x.IsScoringCompleted()).Returns(true);
             var frame2 = new Frame(1, frameState2.Object);
             frames.AddBefore(frames.First, frame2);
 
@@ -96,26 +119,6 @@ namespace BowlingCalculator.Domain.Test
             game.Roll(pinsDowned);
 
             frameState2.Verify(mock => mock.ApplyRoll(pinsDowned, game.MaxPins), Times.Never());
-        }
-
-        [Fact]
-        public void CalculateNewRunningTotalCorrectlyWhenRoll()
-        {
-            byte score = 10;
-            byte currentFrame = 1;
-            var frames = new LinkedList<Frame>();
-            var frameState1 = new Moq.Mock<IFrameState>();
-            frameState1.Setup(x => x.FrameScore).Returns(() => null);
-            var frameState2 = new Moq.Mock<IFrameState>();
-            frameState2.Setup(x => x.FrameScore).Returns(score);
-            frameState1.Setup(x => x.ApplyRoll(It.IsAny<byte>(), It.IsAny<byte>())).Returns(frameState2.Object);
-            var frame = new Frame(currentFrame, frameState1.Object);
-            frames.AddFirst(frame);
-            var game = CreateGame(frames, currentFrame);
-
-            game.Roll(5);
-
-            Assert.Equal(game.RunningTotal, score);
         }
 
         [Fact]
@@ -163,8 +166,10 @@ namespace BowlingCalculator.Domain.Test
             var frames = new LinkedList<Frame>();
             var frameState1 = new Moq.Mock<IFrameState>();
             var frameState2 = new Moq.Mock<IFrameState>();
+            frameState2.Setup(x => x.IsScoringCompleted()).Returns(true);
             frameState2.Setup(x => x.FrameScore).Returns(5);
             frameState1.Setup(x => x.ApplyRoll(It.IsAny<byte>(), It.IsAny<byte>())).Returns(frameState2.Object);
+
             
             var frame = new Frame(1, frameState1.Object);
             frames.AddFirst(frame);
@@ -172,19 +177,12 @@ namespace BowlingCalculator.Domain.Test
             var game = CreateGame(frames, currentFrame);
             game.Roll(5);
 
-            Assert.True(game.IsGameFinished());
+            Assert.True(game.IsGameCompleted());
         }
 
         private static Game CreateGame(LinkedList<Frame> frames, byte currentFrame)
         {
-            return new Game(100, frames, currentFrame, 10);
-        }
-
-        private static Frame CreateFrameWithScore(byte frameNumber,byte? score)
-        {
-            var frameState = new Moq.Mock<IFrameState>();
-            frameState.Setup(x => x.FrameScore).Returns(score);
-            return new Frame(frameNumber, frameState.Object);
+            return new Game(frames, currentFrame, 10,GameStatus.NotStarted,0);
         }
 
     }

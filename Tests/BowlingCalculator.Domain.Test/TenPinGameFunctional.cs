@@ -1,52 +1,30 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
+using System.Linq;
 
 namespace BowlingCalculator.Domain.Test
 {
     public class TenPinGameFunctional
     {
+        private readonly byte MAX_PINS = 10;
+        private readonly byte FRAME_NUMBER = 10;
+
         [Theory]
         [ClassData(typeof(TenPinTestData))]
         public void TenPinFunctionalTest(TenPinTestItem tenPinTestItem)
         {
-            var random = new Random();
-            long gameId = random.Next();
+            var gameBuilder = new GameBuilderService();
+            var game = gameBuilder.CreateDefaultGame(MAX_PINS,FRAME_NUMBER);
 
-            var game = CreateDefaultTenPinGame(gameId);
-
-            foreach(byte roll in tenPinTestItem.Rolls)
+            foreach(byte pinsDowned in tenPinTestItem.Rolls)
             {
-                game.Roll(roll);
+                game.Roll(pinsDowned);
             }
 
-            Assert.Equal(game.IsGameFinished(), tenPinTestItem.GameFinished);
+            Assert.Equal(game.IsGameCompleted(), tenPinTestItem.GameFinished);
             Assert.Equal(game.RunningTotal, tenPinTestItem.ExpectedRunningTotal);
-        }
-
-
-        private static Game CreateDefaultTenPinGame(long gameId)
-        {
-            byte maxPins = 10;
-
-            byte currentFrame = 1;
-
-            var frames = new LinkedList<Frame>();
-
-            var firstFrame = Frame.CreateDefaultFrame(1);
-
-            frames.AddFirst(firstFrame);
-
-            for(byte i= 2; i<=10; i++)
-            {
-                frames.AddLast(Frame.CreateDefaultFrame(i));
-            }
-
-            return new Game(gameId, frames, currentFrame, maxPins);
         }
     }
 
@@ -54,10 +32,20 @@ namespace BowlingCalculator.Domain.Test
     {
         public IEnumerator<TenPinTestItem[]> GetEnumerator()
         {
-            yield return TenPinTestItem.CreateTestPinItem(3,false, 1,2);
-            yield return TenPinTestItem.CreateTestPinItem(300, true, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);//perfect game
-            yield return TenPinTestItem.CreateTestPinItem(12, false, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
-            yield return TenPinTestItem.CreateTestPinItem(55, false, 1, 1, 1, 1, 9, 1, 2, 8, 9, 1, 10, 10);
+            yield return TenPinTestItem.CreateTestPinItem(expectedRunningTotal:3,finished:false,
+                                                          1,2);
+            yield return TenPinTestItem.CreateTestPinItem(expectedRunningTotal:0, finished:false,
+                                                           5);
+            yield return TenPinTestItem.CreateTestPinItem(expectedRunningTotal:300, finished: true, 
+                                                            10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);//perfect game
+            yield return TenPinTestItem.CreateTestPinItem(expectedRunningTotal:12, finished:false, 
+                                                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+            yield return TenPinTestItem.CreateTestPinItem(expectedRunningTotal:55, finished:false, 
+                                                          1, 1, 1, 1, 9, 1, 2, 8, 9, 1, 10, 10);
+            yield return TenPinTestItem.CreateTestPinItem(expectedRunningTotal:0, finished: true, 
+                                                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );//gutter game
+            yield return TenPinTestItem.CreateTestPinItem(expectedRunningTotal:40, finished:false,
+                                                          4,5,6,2,4,6,4,5);
 
         }
 
@@ -80,14 +68,14 @@ namespace BowlingCalculator.Domain.Test
 
         public bool GameFinished { get; set; }
 
-        public static TenPinTestItem[] CreateTestPinItem(short expected ,bool finished,params byte[] rolls)
+        public static TenPinTestItem[] CreateTestPinItem(short expectedRunningTotal, bool finished,params byte[] rolls)
         {
             var allRolls = new List<byte>();
             foreach(byte roll in rolls)
             {
                 allRolls.Add(roll);
             }
-            return new TenPinTestItem[1] { new TenPinTestItem() { ExpectedRunningTotal = expected, GameFinished = finished, Rolls = allRolls } };
+            return new TenPinTestItem[1] { new TenPinTestItem() { ExpectedRunningTotal = expectedRunningTotal, GameFinished = finished, Rolls = allRolls } };
         }
     }
 

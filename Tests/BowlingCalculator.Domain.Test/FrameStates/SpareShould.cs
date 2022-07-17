@@ -1,9 +1,4 @@
 ﻿using BowlingCalculator.Domain.FrameStates;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace BowlingCalculator.Domain.Test.FrameStates
@@ -21,11 +16,19 @@ namespace BowlingCalculator.Domain.Test.FrameStates
         }
 
         [Fact]
-        public void NotCalculateScoreBeforeRoll()
+        public void CorrectlyCalculateScoreBeforeBonusRoll()
         {
             Spare spare = CreateSpare();
 
-            Assert.Null(spare.FrameScore);
+            Assert.Equal(spare.FrameScore.Value,max_pin);
+        }
+
+        [Fact]
+        public void ReturnScoringNotCompletedBeforeBonusRoll()
+        {
+            Spare spare = CreateSpare();
+
+            Assert.False(spare.IsScoringCompleted());
         }
 
         [Fact]
@@ -40,14 +43,14 @@ namespace BowlingCalculator.Domain.Test.FrameStates
         }
 
         [Fact]
-        public void CalculateScoreAfterBonusRoll()
+        public void ReturnScoringCompletedAfterBonusRoll()
         {
             Spare spare = CreateSpare();
 
             byte firstRoll = 1;
             spare.ApplyRoll(firstRoll, max_pin);
 
-            Assert.NotNull(spare.FrameScore);
+            Assert.True(spare.IsScoringCompleted());
         }
 
         [Fact]
@@ -63,7 +66,7 @@ namespace BowlingCalculator.Domain.Test.FrameStates
 
         private Spare CreateSpare()
         {
-            return Spare.CreateDefaultSpare(5,5);
+            return new Spare(5, 5, max_pin, null); 
         }
     }
 }

@@ -8,7 +8,7 @@
         public byte? FirstBonusRoll { get; private set; }
         public byte? SecondBonusRoll { get; private set; }
 
-        public Strike(byte? frameScore, byte? firstRoll, 
+        public Strike(byte frameScore, byte? firstRoll, 
                       byte? firstBonusRoll, byte? secondBonusRoll)
         {
             FrameScore = frameScore;
@@ -30,9 +30,16 @@
             return true;
         }
 
+        public bool IsScoringCompleted()
+        {
+            return SecondBonusRoll.HasValue;
+        }
+
         private IFrameState ApplyFirstBonusRoll(byte pinsDown)
         {
             FirstBonusRoll = pinsDown;
+
+            FrameScore += FirstBonusRoll.Value;
 
             return this;
         }
@@ -40,19 +47,9 @@
         private IFrameState ApplySecondBonusRoll(byte pinsDown)
         {
             SecondBonusRoll = pinsDown;
-            CalculateScore();//points are calulated when second bonus roll is done
+            FrameScore += SecondBonusRoll.Value;
             return this;
         }
-
-        private void CalculateScore()
-        {
-            FrameScore = (byte)(FirstRoll.Value + FirstBonusRoll.Value + SecondBonusRoll.Value);
-        }
-        public static Strike CreateDefaultStrike(byte firstRoll)
-        {
-            return new Strike(frameScore: null, firstRoll: firstRoll,
-                firstBonusRoll: null, secondBonusRoll: null);
-        }
-
+       
     }
 }

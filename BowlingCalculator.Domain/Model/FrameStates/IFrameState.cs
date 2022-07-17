@@ -6,6 +6,7 @@
         byte? FrameScore { get; }
         IFrameState ApplyRoll(byte pinsDowned,byte maxPins);
         bool ShouldTransitionToNextFrame();
+        bool IsScoringCompleted();
     }
 
     public enum FrameStateType
