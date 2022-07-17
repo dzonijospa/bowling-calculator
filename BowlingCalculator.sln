@@ -3,15 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BowlingCalculator.API", "BowlingCalculator.API\BowlingCalculator.API.csproj", "{297F1F6E-8612-42D6-978B-7DE1FD2BBA05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BowlingCalculator.API", "BowlingCalculator.API\BowlingCalculator.API.csproj", "{297F1F6E-8612-42D6-978B-7DE1FD2BBA05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BowlingCalculator.Domain", "BowlingCalculator.Domain\BowlingCalculator.Domain.csproj", "{013B3E2B-2FAE-4DC7-9E67-48BDEE96ADD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BowlingCalculator.Domain", "BowlingCalculator.Domain\BowlingCalculator.Domain.csproj", "{013B3E2B-2FAE-4DC7-9E67-48BDEE96ADD8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E00E9D31-A574-412A-9C7A-78155F17C70E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BowlingCalculator.Domain.Test", "Tests\BowlingCalculator.Domain.Test\BowlingCalculator.Domain.Test.csproj", "{9746D665-6653-4770-A937-B3F9EF3B3FCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BowlingCalculator.Domain.Test", "Tests\BowlingCalculator.Domain.Test\BowlingCalculator.Domain.Test.csproj", "{9746D665-6653-4770-A937-B3F9EF3B3FCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BowlingCalculator.API.Test", "Tests\BowlingCalculator.API.Test\BowlingCalculator.API.Test.csproj", "{C919C0A2-5783-47B6-B2C8-0C91CB749DED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BowlingCalculator.API.Test", "Tests\BowlingCalculator.API.Test\BowlingCalculator.API.Test.csproj", "{C919C0A2-5783-47B6-B2C8-0C91CB749DED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{224203E9-8A1F-456A-8FD4-00FC2E81DCB9}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
