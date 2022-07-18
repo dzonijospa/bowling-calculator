@@ -10,11 +10,11 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
-COPY ["BowlingCalculator/BowlingCalculator.API.csproj", "BowlingCalculator/"]
+COPY ["BowlingCalculator.API/BowlingCalculator.API.csproj", "BowlingCalculator.API/"]
 COPY ["BowlingCalculator.Domain/BowlingCalculator.Domain.csproj", "BowlingCalculator.Domain/"]
-RUN dotnet restore "BowlingCalculator/BowlingCalculator.API.csproj"
+RUN dotnet restore "BowlingCalculator.API/BowlingCalculator.API.csproj"
 COPY . .
-WORKDIR "/src/BowlingCalculator"
+WORKDIR "/src/BowlingCalculator.API"
 RUN dotnet build "BowlingCalculator.API.csproj" -c Release -o /app/build
 
 FROM build AS publish

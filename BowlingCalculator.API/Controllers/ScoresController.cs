@@ -2,6 +2,8 @@
 using BowlingCalculator.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace BowlingCalculator.Controllers
 {
@@ -43,13 +45,13 @@ namespace BowlingCalculator.Controllers
         ///  <response code="200">Returns the game score</response>
         /// <response code="400">Bad request</response>
         [HttpPost]
-        public ActionResult Scores([FromBody] ScoresRequest scores)
+        public async Task<ActionResult> ScoresAsync([FromBody] ScoresRequest scores)
         {
             _logger.LogDebug($"request {scores.PinsDowned}");
 
-            ScoresResponse response = _gameCalculatorService.CalculateScore(scores);
+            ScoresResponse response = await _gameCalculatorService.CalculateScoreAsync(scores);
 
-            _logger.LogDebug($"response {response}");
+            _logger.LogDebug($"response {JsonSerializer.Serialize(response)}");
 
             return Ok(response);
         }

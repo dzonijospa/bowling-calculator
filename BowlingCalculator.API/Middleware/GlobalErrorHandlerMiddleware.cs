@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BowlingCalculator.API.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
@@ -31,18 +32,24 @@ namespace BowlingCalculator.API.Middleware
 
         private async void HandleException(HttpContext context, Exception exception)
         {
-
+            context.Response.ContentType = "application/json";
+            int statusCode = (int)HttpStatusCode.InternalServerError;
             if (exception is Domain.Exceptions.DomainException)
             {
-                _logger.LogError($"DomainException {exception.Message}");
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                await context.Response.WriteAsync(exception.Message);
+                _logger.LogError($"DomainException {exception.Message} {exception.StackTrace}");
+                statusCode = (int)HttpStatusCode.BadRequest;
             }
             else
             {
-                _logger.LogError("Status code {@StatusCode} {@Source} {@Exception} {@StackTrace}", context.Response.StatusCode, exception.TargetSite.DeclaringType.FullName, exception.Message, exception.StackTrace);
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                _logger.LogError("Status code {@StatusCode} {@Source} {@Exception} {@StackTrace}", context.Response.StatusCode, exception.TargetSite.DeclaringType.FullName, exception.Message, exception.StackTrace);              
             }
+
+            context.Response.StatusCode = statusCode;
+
+            await context.Response.WriteAsync(new ErrorDetails()
+            {
+                Message = exception.Message
+            }.ToString());
 
         }
     }

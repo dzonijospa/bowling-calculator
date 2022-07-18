@@ -1,7 +1,7 @@
 ﻿using BowlingCalculator.API.Models;
-using BowlingCalculator.Domain;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BowlingCalculator.API.Services
 {
@@ -18,20 +18,22 @@ namespace BowlingCalculator.API.Services
             _logger = logger;
         }
 
-        public ScoresResponse CalculateScore(ScoresRequest request)
+        public Task<ScoresResponse> CalculateScoreAsync(ScoresRequest request)
         {
-            Game game = _gameProvider.CreateNewGame();
-            foreach (int pin in request.PinsDowned)
+            return Task.Run(() => 
             {
-                game.Roll((byte)pin);
-            }
+                Domain.Game game = _gameProvider.CreateNewGame();
+                foreach (int pin in request.PinsDowned)
+                {
+                    game.Roll((byte)pin);
+                }
 
-            var gameService = new GameService();
-            GameScore gameScore = gameService.GetGameScore(game);
+                Domain.Services.GameScoreService gameService = _gameProvider.GetGameScoreService();
+                Domain.GameScore gameScore = gameService.GetGameScore(game);
 
-            return _responseCreator.GetScoreResponse(game.IsGameCompleted(), gameScore);
-
+                return _responseCreator.GetScoreResponse(game.IsGameCompleted(), gameScore);
+            });                         
         }
-        
+
     }
 }
