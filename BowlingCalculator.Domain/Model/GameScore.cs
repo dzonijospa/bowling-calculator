@@ -25,7 +25,7 @@ namespace BowlingCalculator.Domain
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(GameRunningTotal, FrameProgresses);
+            return HashCode.Combine(GameRunningTotal, FrameProgresses.Aggregate(0, (x, y) => x.GetHashCode() ^ y.GetHashCode()));
         }
     }
 
