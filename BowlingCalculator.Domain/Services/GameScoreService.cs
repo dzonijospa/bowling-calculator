@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace BowlingCalculator.Domain
+namespace BowlingCalculator.Domain.Services
 {
-    public class GameService
+    public class GameScoreService
     {
         /// <summary>
         /// Calculates running total and scores per frame that were or are in play

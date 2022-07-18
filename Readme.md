@@ -2,6 +2,29 @@
 
 A simple bowling score calculator, using the traditional scoring method.
 
+## Frameworks 
+
+.NET Core 3.1, .NET standard 2.1
+
+## Run the app locally
+
+Navigate to the project folder at /BowlingCalculator/BowlingCalculator.API 
+Run the following command to build and run the app locally: 
+dotnet run
+
+Go to http://localhost:5000/swagger/index.html in a browser to test the app
+
+## Run in a Linux container or Windows container
+
+Navigate to the Dockerfile folder at /BowlingCalculator/
+Run the following commands to build and run the sample in Docker:
+
+docker build -t bowlingcalculatorapi:latest .
+
+docker run -it --rm -p 5000:80 --name bowlingcalculatorapi bowlingcalculatorapi:latest
+
+Go to http://localhost:5000/swagger/index.html in a browser to test the app
+
 ## Project structure
 
 The solution is organized into two projects:

@@ -1,6 +1,4 @@
-﻿using BowlingCalculator.Domain;
-
-namespace BowlingCalculator.API.Services
+﻿namespace BowlingCalculator.API.Services
 {
     public interface IGameProvider
     {
@@ -8,6 +6,12 @@ namespace BowlingCalculator.API.Services
         /// Create a new game
         /// </summary>
         /// <returns></returns>
-        Game CreateNewGame(); 
+        Domain.Game CreateNewGame();
+
+        /// <summary>
+        /// Get game score service
+        /// </summary>
+        /// <returns></returns>
+        Domain.Services.GameScoreService GetGameScoreService();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BowlingCalculator.API.Models;
+using System.Threading.Tasks;
 
 namespace BowlingCalculator.API.Services
 {
@@ -9,6 +10,6 @@ namespace BowlingCalculator.API.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        ScoresResponse CalculateScore(ScoresRequest request);
+        Task<ScoresResponse> CalculateScoreAsync(ScoresRequest request);
     }
 }

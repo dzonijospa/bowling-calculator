@@ -74,7 +74,8 @@ namespace BowlingCalculator.Domain.FrameStates
         private void ValidateNumberOfPins(byte pinsDown, byte maxPins)
         {
             if (FirstRoll.Value + pinsDown > maxPins)
-                throw new InvalidNumberOfPinsException(pinsDown.ToString());
+                throw new InvalidNumberOfPinsException($"{pinsDown},"
+                                                       + $"maximum total number of pins rolled in frame is {maxPins}");
         }
 
     }

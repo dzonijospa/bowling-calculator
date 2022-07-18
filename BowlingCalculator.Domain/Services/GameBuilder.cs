@@ -1,9 +1,9 @@
 ﻿using BowlingCalculator.Domain.FrameStates;
 using System.Collections.Generic;
 
-namespace BowlingCalculator.Domain
+namespace BowlingCalculator.Domain.Services
 {
-    public class GameBuilderService
+    public class GameBuilder
     {
         public Game CreateDefaultGame(byte maxPins,byte numberOfFrames)
         {
@@ -21,7 +21,7 @@ namespace BowlingCalculator.Domain
                 frames.AddLast(CreateDefaultFrame(i));
             }
 
-            return new Game(frames, currentFrame, maxPins, GameStatus.NotStarted,0);
+            return new Game(frames, currentFrame, maxPins, GameStatus.NotStarted, default(short));
         }
 
         private Frame CreateDefaultFrame(byte frameNumber)

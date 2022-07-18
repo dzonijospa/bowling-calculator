@@ -1,4 +1,5 @@
-﻿using BowlingCalculator.Domain;
+﻿using BowlingCalculator;
+using BowlingCalculator.Domain.Services;
 using Microsoft.Extensions.Logging;
 
 namespace BowlingCalculator.API.Services
@@ -16,11 +17,18 @@ namespace BowlingCalculator.API.Services
         /// Creates a new ten pin bowling game
         /// </summary>
         /// <returns></returns>
-        public Game CreateNewGame()
+        public Domain.Game CreateNewGame()
         {
-            var gameBuilderService = new GameBuilderService();
+            var gameBuilderService = new Domain.Services.GameBuilder();
 
             return gameBuilderService.CreateDefaultGame(MAX_PINS,NUMBER_OF_FRAMES);
+        }
+
+        public GameScoreService GetGameScoreService()
+        {
+            var gameScoreService = new GameScoreService();
+
+            return gameScoreService;
         }
     }
 }

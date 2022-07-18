@@ -9,6 +9,8 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <UserSecretsId>95d3e441-a9fb-4e55-87fe-f3923e6ce600</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DockerfileFile>..\Dockerfile</DockerfileFile>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
   
   <ItemGroup>

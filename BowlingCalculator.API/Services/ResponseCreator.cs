@@ -1,5 +1,4 @@
 ﻿using BowlingCalculator.API.Models;
-using BowlingCalculator.Domain;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,12 +15,12 @@ namespace BowlingCalculator.API.Services
             _logger = logger;
         }
 
-        public ScoresResponse GetScoreResponse(bool gameFinished, GameScore gameScore)
+        public ScoresResponse GetScoreResponse(bool gameFinished, Domain.GameScore gameScore)
         {
             var result = new List<string>();
-            foreach (FrameProgress frame in gameScore.FrameProgresses)
+            foreach (Domain.FrameProgress frame in gameScore.FrameProgresses)
             {
-                string frameScore = frame.ScoringCompleted ? $"{frame.RunningScore}" : "*";
+                string frameScore = frame.ScoringCompleted ? $"{frame.RunningScore}" : "* ";
                 result.Add(frameScore);
             }
 

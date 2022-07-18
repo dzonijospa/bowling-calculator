@@ -15,7 +15,7 @@ namespace BowlingCalculator.Domain.Test
         [ClassData(typeof(TenPinTestData))]
         public void TenPinFunctionalTest(TenPinTestItem tenPinTestItem)
         {
-            var gameBuilder = new GameBuilderService();
+            var gameBuilder = new Domain.Services.GameBuilder();
             var game = gameBuilder.CreateDefaultGame(MAX_PINS,FRAME_NUMBER);
 
             foreach(byte pinsDowned in tenPinTestItem.Rolls)
@@ -23,8 +23,8 @@ namespace BowlingCalculator.Domain.Test
                 game.Roll(pinsDowned);
             }
 
-            Assert.Equal(game.IsGameCompleted(), tenPinTestItem.GameFinished);
-            Assert.Equal(game.RunningTotal, tenPinTestItem.ExpectedRunningTotal);
+            Assert.Equal(tenPinTestItem.GameFinished, game.IsGameCompleted());
+            Assert.Equal(tenPinTestItem.ExpectedRunningTotal,game.RunningTotal);
         }
     }
 
