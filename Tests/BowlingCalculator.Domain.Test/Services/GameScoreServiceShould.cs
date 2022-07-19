@@ -17,7 +17,7 @@ namespace BowlingCalculator.Domain.Test.Services
             var frames = new LinkedList<Frame>();
             frames.AddFirst(new Frame(1, new OpenFrame(5,2,3)));
             frames.AddLast(new Frame(2,new OpenFrame(4,4, null)));
-            Game game = new Game(frames, 2, 10, GameStatus.InProgress, 5);
+            Game game = new Game(Guid.NewGuid(), frames, 2, 10, GameStatus.InProgress, 5);
             var frameProgresses = new List<FrameProgress>();
             frameProgresses.Add(new FrameProgress(1, true, 5, 5));
             frameProgresses.Add(new FrameProgress(2, false, 4, 5));

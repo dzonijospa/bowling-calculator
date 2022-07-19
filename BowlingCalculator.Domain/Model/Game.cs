@@ -1,4 +1,5 @@
 ﻿using BowlingCalculator.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,10 +20,13 @@ namespace BowlingCalculator.Domain
         public GameStatus GameStatus { get; private set; }
         public short RunningTotal { get; private set; }
 
+        public Guid Id { get; }
+
         private readonly object _lock = new object();
 
-        public Game(LinkedList<Frame> frames,byte currentFrameNumber,byte maxPins, GameStatus status, short runningTotal)
+        public Game(Guid id,LinkedList<Frame> frames,byte currentFrameNumber,byte maxPins, GameStatus status, short runningTotal)
         {
+            Id = id;
             Frames = frames;
             CurrentFrameNumber = currentFrameNumber;
             MaxPins = maxPins;
