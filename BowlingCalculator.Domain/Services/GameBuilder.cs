@@ -1,4 +1,5 @@
 ﻿using BowlingCalculator.Domain.FrameStates;
+using System;
 using System.Collections.Generic;
 
 namespace BowlingCalculator.Domain.Services
@@ -21,7 +22,7 @@ namespace BowlingCalculator.Domain.Services
                 frames.AddLast(CreateDefaultFrame(i));
             }
 
-            return new Game(frames, currentFrame, maxPins, GameStatus.NotStarted, default(short));
+            return new Game(Guid.NewGuid(), frames, currentFrame, maxPins, GameStatus.NotStarted, default(short));
         }
 
         private Frame CreateDefaultFrame(byte frameNumber)

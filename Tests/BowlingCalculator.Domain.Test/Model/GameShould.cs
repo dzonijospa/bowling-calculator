@@ -182,7 +182,7 @@ namespace BowlingCalculator.Domain.Test
 
         private static Game CreateGame(LinkedList<Frame> frames, byte currentFrame)
         {
-            return new Game(frames, currentFrame, 10,GameStatus.NotStarted,0);
+            return new Game(Guid.NewGuid(),frames, currentFrame, 10,GameStatus.NotStarted,0);
         }
 
     }
