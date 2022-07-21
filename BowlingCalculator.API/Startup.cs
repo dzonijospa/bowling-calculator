@@ -58,7 +58,7 @@ namespace BowlingCalculator
 
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
